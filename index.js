@@ -18,7 +18,10 @@
 		this.element.style.transform = 'translateY(' + pixels + 'px)';
 	};
 
-	function getNumber (easing, start, end, ratio) {
+	function getNumber (field, options, ratio) {
+		var easing = options.easing[field];
+		var start = options.start[field];
+		var end = options.end[field];
 
 		if (easing) {
 			ratio = easing(ratio);
@@ -33,31 +36,6 @@
 		return start + change;
 	}
 
-	function getY (options, ratio, rootHeight, itemHeight) {
-
-		var start = options.start.y || 0;
-		if (!start && options.start.bottom !== undefined) {
-			start = rootHeight - itemHeight - options.start.bottom;
-		}
-
-		var end = options.end.y;
-		if (!end && options.end.bottom !== undefined) {
-			end = rootHeight - itemHeight - options.end.bottom;
-		}
-
-		var easing = options.easing.y || options.easing.bottom;
-
-		return getNumber(easing, start, end, ratio);
-	}
-
-	function getField (field, options, ratio) {
-		var easing = options.easing[field];
-		var start = options.start[field];
-		var end = options.end[field];
-
-		return getNumber(easing, start, end, ratio);
-	}
-
 	function OptionsParallax (element, options) {
 		this.options = options;
 		if (!this.options.start) {
@@ -66,45 +44,38 @@
 		if (!this.options.easing) {
 			this.options.easing = {};
 		}
-
-		if (this.options.end.bottom !== undefined) {
-			this.watcher = scrollMonitor.create(element);
-		} else {
-			this.watcher = {};
-		}
 		this.element = element;
 	}
 
-	OptionsParallax.prototype.handleScroll = function (ratio, pxThru, rootWatcher) {
+	OptionsParallax.prototype.handleScroll = function (ratio) {
 		var transformString = 'translate3D(';
-		if (this.options.end.x !== undefined) {
-			transformString += getField('x', this.options, ratio) + 'px,';
+		if (this.options.end.x) {
+			transformString += getNumber('x', this.options, ratio) + 'px,';
 		} else {
 			transformString += '0px,';
 		}
-		if (this.options.end.y !== undefined || this.options.end.bottom !== undefined) {
-			transformString += getY(this.options, ratio, rootWatcher.height, this.watcher.height) + 'px,';
+		if (this.options.end.y) {
+			transformString += getNumber('y', this.options, ratio) + 'px,';
 		} else {
 			transformString += '0px,';
 		}
-		if (this.options.end.z !== undefined) {
-			transformString += getField('z', this.options, ratio) + 'px)';
+		if (this.options.end.z) {
+			transformString += getNumber('z', this.options, ratio) + 'px)';
 		} else {
 			transformString += '0px)';
 		}
 
-		if (this.options.end.rotate !== undefined) {
-			transformString += ' rotate(' + getField('rotate', this.options, ratio) + 'deg)';
+		if (this.options.end.rotate) {
+			transformString += ' rotate(' + getNumber('rotate', this.options, ratio) + 'deg)';
 		}
 
-		if (this.options.end.scale !== undefined) {
-			transformString += ' scale(' + getField('scale', this.options, ratio) + ')';
+		if (this.options.end.scale) {
+			transformString += ' scale(' + getNumber('scale', this.options, ratio) + ')';
 		}
-
 		this.element.style.transform = transformString;
 
-		if (this.options.end.opacity !== undefined) {
-			this.element.style.opacity = getField('opacity', this.options, ratio);
+		if (this.options.end.opacity) {
+			this.element.style.opacity = getNumber('opacity', this.options, ratio);
 		}
 	};
 
@@ -125,7 +96,7 @@
 			self.ratio = self.pxThru / (end - start);
 
 			for (var i=0; i < self.items.length; i++) {
-				self.items[i].handleScroll.call(self.items[i], self.ratio, self.pxThru, self.watcher);
+				self.items[i].handleScroll.call(self.items[i], self.ratio, self.pxThru);
 			}
 		}
 
