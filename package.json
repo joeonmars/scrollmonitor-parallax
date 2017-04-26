@@ -1,6 +1,6 @@
 {
-  "name": "scrollmonitor-parallax-joeonmars-fork",
-  "version": "1.0.13",
+  "name": "scrollmonitor-simple-parallax",
+  "version": "1.0.0",
   "description": "A simple parallax API",
   "main": "index.js",
   "directories": {
